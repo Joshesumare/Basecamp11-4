@@ -4,7 +4,7 @@ pub trait Icontador<TContractState> {
     fn Sumar_uno(ref self: TContractState);
     fn Restar_uno(ref self: TContractState);
     fn Restablecer(ref self: TContractState);
-    fn to_0_no_owner(ref self: TContractState);
+    fn Restablecer_no_owner(ref self: TContractState);
 }
 
 #[starknet::contract]
@@ -79,7 +79,7 @@ mod contador {
             self.contador.write(0);
         }
         
-        fn to_0_no_owner(ref self: ContractState) { //funcion restablecer, llama al estado del contrato, (Valor)
+        fn Restablecer_no_owner(ref self: ContractState) { //funcion restablecer, llama al estado del contrato, (Valor)
             //self.ownable.assert_only_owner(); // ELIMINADO PARA PRUEBAS 
             self.contador.write(0);
         }

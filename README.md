@@ -160,7 +160,7 @@ Paso 7 Compilar
 Posteriormente debemos aplicar en la ventana de comandos [scarb Build] presionar [ENTER] e introducir el siguiente comando: 
 
 ```rust
-starkli declare target/dev/basecamp11_Contadorr.contract_class.json --account account.json --keystore keystore.json
+starkli declare target/dev/basecamp11_Contador.contract_class.json --account account.json --keystore keystore.json
 ```
 Desplegara la siguiente informacion de la compilacion.
 
