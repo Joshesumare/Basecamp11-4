@@ -1,5 +1,5 @@
 'use client';
-import React, { FC, useMemo } from 'react';
+import React, { FC, useMemo, useState, useRef, useCallback} from 'react';
 import dynamic from 'next/dynamic';
 
 import { useAccount, useBalance, useBlockNumber, useContract, useReadContract, useSendTransaction, useTransactionReceipt, useCall } from "@starknet-react/core";
@@ -12,7 +12,7 @@ const WalletBar = dynamic(() => import('../components/WalletBar'), { ssr: false 
 const Page: FC = () => {
 
   // Step 1 --> Read the latest block -- Start
-  const {data: blockNumberData, isLoading: blocknumberLoading, isError: blockNumberError } = useBlockNumber( {
+  const {data: blockNumberData, isLoading: blocknumberLoading, isError: blockNumberIsError } = useBlockNumber( {
     blockIdentifier: "latest"
   });
   const workshopEnd= 450000;
@@ -59,19 +59,62 @@ const { data: balanceData, error: balanceError, isError: balanceIsError, isLoadi
     const { data: waitData, status: waitStatus, isLoading: waitIsLoanding, isError: waitIsError, error: WaitError } = useTransactionReceipt ({
       watch : true,
       hash: writeData?.transaction_hash      
-    });
+  
+    // relleno
+
+    // relleno
+
+    // relleno
+
+    // relleno
 
 
-  //function buttonContent(): React.ReactNode {
-   //throw new Error('Function not implemented.');
-  //}
+  });
+  const buttonContent = () => {
+    if (writeIsPending) {
+        return <LoadingState message = "Send..."/>;
+    }
 
+    if (waitIsLoanding) {
+      return < LoadingState message = "Waiting for confirmation..."/>;
+    }
+
+    if (waitStatus == "error") {
+      return < LoadingState message = "Transaction Rejected..."/>;
+    }
+
+    if (waitStatus == "success") {
+      return  "Transaction Confirmed...";
+    }
+
+    return "Send";
+  }
+  
   // Step 4 --> Increase counter on contract -- End
 
   // Step 5 --> Reset balance -- Start
   // Step 5 --> Reset balance -- End
 
   // Step 6 --> Get events from a contract -- Start
+  type ContractEvent={
+    from_address: string;
+    keys: string[];
+    data: string[]
+  }
+  const provider= useMemo(() => new RpcProvider({
+    nodeUrl: process.env.NEXT_PUBLIC_RPC_URL
+    }), []);
+    const [events, setEvents]= useState<ContractEvent[]>([]);
+    const lastCheckedBlockRef = useRef(0);
+    const {data: blockNumber} = useBlockNumber ({refetchInterval: 1000 });
+    const checkForEvents = useCallback(async (contract:any, currentBlockNumber:number) => {
+      if (currentBlockNumber = lastCheckedBlockRef.current) return;
+      try {
+        const fromBlock = lastCheckedBlockRef.current +1;
+      }
+    };
+    );
+    
   // Step 6 --> Get events from a contract -- End
 
   return (
@@ -87,20 +130,21 @@ const { data: balanceData, error: balanceError, isError: balanceIsError, isLoadi
           </div>
 
           { /* Step 1 -->  Read the latest block -- Start */ }
+          {!blocknumberLoading && !blockNumberIsError && (
           <div className={`p-4 border-white ${blockNumberData! < workshopEnd ? "bg-green-500" : "bg-red-500"}`}>
             <h3 className="text-lg font-bold mb-2">Read the Blockchain</h3>
             <p>Current Block: {blockNumberData}</p>
             <p>{blockNumberData! < workshopEnd ? "Workshop is live" : "Workshop is over"}</p>
           </div> 
+          )}
           {/* Step 1 --> Read the latest block -- End */}
 
           {/* Step 2 --> Read your balance -- Start */}
-          {
           <div className="p-4 bg-black border-white border">
             <h3 className="text-lg font-bold mb-2">Tu Balance</h3>
             <p>Symbol: {balanceData?.symbol}</p>
             <p>Balance: {Number(balanceData?.formatted).toFixed(2)}</p>
-          </div> }
+          </div> 
           {/* Step 2 --> Read your balance -- End */}
 
           {/* Step 5 --> Reset balance by owner only -- Start */}
