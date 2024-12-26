@@ -1,3 +1,3 @@
-mod counter{
+mod counter {
     mod counter;
 }

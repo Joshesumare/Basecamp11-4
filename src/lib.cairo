@@ -59,28 +59,44 @@ mod contador {
             self.contador.read()
         }
 
-        fn Sumar_uno(ref self: ContractState) { //funcion sumar, llama al estado del contrato, (Valor)
+        fn Sumar_uno(
+            ref self: ContractState,
+        ) { //funcion sumar, llama al estado del contrato, (Valor)
             let old_contador = self.contador.read();
             let new_contador = old_contador + 1;
             self.contador.write(new_contador);
             self.emit(contadorIncreased { contador: new_contador });
         }
 
-        fn Restar_uno(ref self: ContractState) { //funcion restar, llama al estado del contrato, (Valor)
-            let old_contador = self.contador.read(); // leer el contador y asignar valor a contador antiguo
+        fn Restar_uno(
+            ref self: ContractState,
+        ) { //funcion restar, llama al estado del contrato, (Valor)
+            let old_contador = self
+                .contador
+                .read(); // leer el contador y asignar valor a contador antiguo
             assert(old_contador > 0, 'ya valgo 0'); // asert emite un aviso si se cmple X condicion
-            let new_contador = old_contador - 1; // el contador nuevo valdra lo que el antiguo menos 1
+            let new_contador = old_contador
+                - 1; // el contador nuevo valdra lo que el antiguo menos 1
             self.contador.write(new_contador); // escribir en contador el valor de contador nuevo
-            self.emit(contadorDecreased { contador: new_contador }); // enviar los valores a la cadena
+            self
+                .emit(
+                    contadorDecreased { contador: new_contador },
+                ); // enviar los valores a la cadena
         }
 
-        fn Restablecer(ref self: ContractState) { //funcion restablecer, llama al estado del contrato, (Valor)
-            self.ownable.assert_only_owner(); // solo el Owner del contrato puede llamar esta funcion 
+        fn Restablecer(
+            ref self: ContractState,
+        ) { //funcion restablecer, llama al estado del contrato, (Valor)
+            self
+                .ownable
+                .assert_only_owner(); // solo el Owner del contrato puede llamar esta funcion 
             self.contador.write(0);
         }
-        
-        fn Restablecer_no_owner(ref self: ContractState) { //funcion restablecer, llama al estado del contrato, (Valor)
-            //self.ownable.assert_only_owner(); // ELIMINADO PARA PRUEBAS 
+
+        fn Restablecer_no_owner(
+            ref self: ContractState,
+        ) { //funcion restablecer, llama al estado del contrato, (Valor)
+            //self.ownable.assert_only_owner(); // ELIMINADO PARA PRUEBAS
             self.contador.write(0);
         }
     }
