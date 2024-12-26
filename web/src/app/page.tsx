@@ -1,5 +1,5 @@
 'use client';
-import React, { FC, useMemo, useState, useRef, useCallback} from 'react';
+import React, { FC, useMemo, useState, useRef, useCallback, useEffect} from 'react';
 import dynamic from 'next/dynamic';
 
 import { useAccount, useBalance, useBlockNumber, useContract, useReadContract, useSendTransaction, useTransactionReceipt, useCall } from "@starknet-react/core";
@@ -111,9 +111,30 @@ const { data: balanceData, error: balanceError, isError: balanceIsError, isLoadi
       if (currentBlockNumber = lastCheckedBlockRef.current) return;
       try {
         const fromBlock = lastCheckedBlockRef.current +1;
-      }
-    };
-    );
+        const fetchedEvents = await provider.getEvents({
+          address: contract.address,
+          from_block: {block_number: fromBlock},
+          to_block: {block_number: currentBlockNumber },
+          chunk_size:500,
+        });
+        if (fetchedEvents && fetchedEvents.events) {
+          setEvents(prevEvents => [...prevEvents, ... fetchedEvents.events]);
+
+        }
+
+        lastCheckedBlockRef.current =currentBlockNumber;
+      } catch (error) {
+        console.error('error checking for events', error);
+        }
+      }, [provider]);
+      useEffect(() => {
+        if (contract && blockNumber) {
+          checkForEvents(contract, blockNumber);
+          }
+      }, [contract, blockNumber, checkForEvents]);
+      const lastFiveEvents = useMemo(() => {
+        return [...events].reverse().slice(0,5);
+      }, [events]);
     
   // Step 6 --> Get events from a contract -- End
 
