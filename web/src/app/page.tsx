@@ -2,7 +2,7 @@
 import React, { FC, useMemo, useState, useRef, useCallback, useEffect} from 'react';
 import dynamic from 'next/dynamic';
 
-import { useAccount, useBalance, useBlockNumber, useContract, useReadContract, useSendTransaction, useTransactionReceipt, useCall } from "@starknet-react/core";
+import { useAccount, useBalance, useBlockNumber, useContract, useReadContract, useSendTransaction, useTransactionReceipt, useCall, useNetwork } from "@starknet-react/core";
 import { BlockNumber, RpcProvider } from 'starknet';
 import { ABI } from '@/abis/abi';
 import { type Abi } from 'starknet';
@@ -45,50 +45,47 @@ const { data: balanceData, error: balanceError, isError: balanceIsError, isLoadi
     await writeAsync();
   } 
   const typedABI =  ABI as Abi;
-  const {contract} = useContract ({
+  const {contract} = useContract({
     abi: typedABI,
     address: contractAddress,
     });
     const calls = useMemo(() => {
       if (!userAddress || !contract) return [];
-      return [contract.populate("contadorIncreased")];
+      return [contract.populate("Sumar_uno")];
     }, [userAddress, contract]);
     const { send: writeAsync, data: writeData, isPending: writeIsPending } = useSendTransaction({
       calls
     });
     const { data: waitData, status: waitStatus, isLoading: waitIsLoanding, isError: waitIsError, error: WaitError } = useTransactionReceipt ({
       watch : true,
-      hash: writeData?.transaction_hash      
-  
-    // relleno
+      hash: writeData?.transaction_hash
+    });
+      const LoadingState = ({ message }: { message: string }) => ( 
+      <div className="flex items-center space-x-2"> 
+      <div className="animate-spin"> 
+        <svg className="h-5 w-5 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"> 
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /> 
+        </svg> 
+      </div> 
+      <span>{message}</span> 
+      </div> 
+    ); const buttonContent = () => {
+      if (writeIsPending) {
+        return <LoadingState message="Send..." />;
+       } 
+       
+       if (waitIsLoanding){ 
+        return <LoadingState message="Waiting for confirmation..." />;
 
-    // relleno
-
-    // relleno
-
-    // relleno
-
-
-  });
-  const buttonContent = () => {
-    if (writeIsPending) {
-        return <LoadingState message = "Send..."/>;
-    }
-
-    if (waitIsLoanding) {
-      return < LoadingState message = "Waiting for confirmation..."/>;
-    }
-
-    if (waitStatus == "error") {
-      return < LoadingState message = "Transaction Rejected..."/>;
-    }
-
-    if (waitStatus == "success") {
-      return  "Transaction Confirmed...";
-    }
-
-    return "Send";
-  }
+      } 
+      if (waitStatus === "error") { 
+        return <LoadingState message="Transaction rejected..." />;
+       } 
+       if (waitStatus === "success") { 
+          return "Transaction confirmed"; 
+        }
+        return "Send";
+      };
   
   // Step 4 --> Increase counter on contract -- End
 
@@ -235,10 +232,12 @@ const { data: balanceData, error: balanceError, isError: balanceIsError, isLoadi
                 </tr>
               </thead>
               <tbody>
+                {lastFiveEvents.map((event,index) => ( 
                 <tr key={1} className={'bg-gray-50'}>
-                  <td className="border-b border-gray-200 p-2">1</td>
-                  <td className="border-b border-gray-200 p-2 text-right">value</td>
+                  <td className="border-b border-gray-200 p-2">{lastFiveEvents.length- index}</td>
+                  <td className="border-b border-gray-200 p-2 text-right">{event.data.length > 0 ? event.data[0]: "Valor inicial"}</td>
                 </tr>
+                ))}
               </tbody>
             </table>
           </div> }
